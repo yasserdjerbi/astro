@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <template id="pos_z_report_pdf">
+            <t t-call="web.external_layout">
+                <link rel="stylesheet" href="/edocs_print_format/static/src/css/pos-z.css" type="text/css"/>  
+                <div class="page">
+                    <!--HEADER-->
+                    <div style="text-align:center;padding:6px;border-bottom:1px solid #ccc">
+                        <t t-esc="o.get_sequence()"/>
+                    </div>
+                    <div class="pos-ticket-header">
+                        <div class="pos-logo-header pos-header-t" style="width:26%;padding-rigth:15px;padding-top:30px;">                          
+                             <img t-if="o.get_company().logo" t-att-src="b'data:image/png;base64,%s' % o.get_company().logo" class="pull-left" style="width:120px;vertical-align:middle;"/>
+                        </div>
+                        <div class="company-details pos-header-t" style="padding-left:15px; vertical-align:top;padding-top:15px;">
+                            <b  class="participant_name"><t t-esc="o.get_company().name"/></b>
+                            <div class="company-details-padded">
+                                <div class="receipt-vat" t-if="o.get_company().vat">
+                                    VAT: <t t-esc="o.get_company().vat"/>   <br />
+                                </div>                 
+                                <div class="receipt-phone">
+                                    Phone: <t t-esc="o.get_company().phone"/><br />
+                                </div>
+                                <div class="receipt-phone">
+                                    Dirección: <t t-esc="o.get_company().street"/><br />
+                                </div>
+                                <div class="receipt-phone">
+                                    Ciudad: <t t-esc="o.get_company().city"/><br />
+                                </div>
+                            </div>                   
+                        </div> 
+                    </div>
+
+                     <!--HEADER-->
+                    <div class="pos-ticket-body">
+                        <div class="receipt-row">
+                            Fecha Apertura: <t t-esc="o.start_at"/><br />
+                        </div>
+                        <div class="receipt-row">
+                            Fecha Cierre: <t t-esc="o.stop_at"/><br />
+                        </div>
+                        <div class="receipt-row">
+                            Factura inicial: <t t-esc="o.get_invoices()['first'].pos_reference"/><br />
+                        </div>
+                        <div class="receipt-row">
+                            Factura final: <t t-esc="o.get_invoices()['last'].pos_reference"/><br />
+                        </div>
+                        <div class="receipt-row">
+                            Caja: <t t-esc="o.get_pos_name()"/><br />
+                        </div>
+                        <div class="receipt-row">
+                            Cajero: <t t-esc="o.get_cashier()['name']"/><br />
+                        </div>
+                    </div>
+
+                    
+
+                    <hr style="border:1px solid #777;"></hr>
+                    <div class="pos-ticket-body">
+                        <div class="receipt-row"  style="display:table;">
+                            <div clas="lef" style="display:table-cell;">TOTAL VENTA POS</div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;">
+                                <t t-set="total_department" t-value="0"/>
+                                <t t-foreach="o.get_totals_by_product_category('einv_non_separeted')" t-as="category_grouped">                                    
+                                    <t t-set="total_department" t-value="total_department + category_grouped['total_amount_without_tax']"/>
+                                </t>
+                                <span t-esc="total_department"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="border:1px solid #777;"></hr>
+
+                    <div class="pos-ticket-body">
+                        <div class="receipt-row"  style="display:table;">
+                            <div clas="lef" style="display:table-cell;">Devoluciones</div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;"><t t-esc="o.get_total_returns()"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                        </div>     
+                        <div class="receipt-row"  style="display:table;">
+                            <div clas="lef" style="display:table-cell;">Descuentos</div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;"><span t-esc="o.get_total_discount()"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                        </div>     
+                       <!-- <div class="receipt-row"  style="display:table;">
+                            <div clas="lef" style="display:table-cell;">Beneficio bruto</div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;"><span t-esc="o.get_gross_total()" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                        </div>  
+                        <div class="receipt-row"  style="display:table;">
+                            <div clas="lef" style="display:table-cell;">Beneficio bruto neto</div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;"><span t-esc="o.get_net_gross_total()" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                        </div>  -->                                   
+                    </div>
+                    <hr style="border:1px solid #777;"></hr>
+                    <div class="pos-ticket-body">
+                        <div><b>IMPUESTOS</b></div>
+                        <t t-set="total_imp" t-value="0"/>
+                         <t t-foreach="o.get_invoices_lines_taxes_grouped('einv_non_separeted')" t-as="tax_grouped">
+                            <div class="receipt-row" style="display:table;">
+                                <div clas="lef" style="display:table-cell;">
+                                    <t t-esc="tax_grouped['tax_line_name']"/> 
+                                    <t t-esc="tax_grouped['tax_line_amount']"/>
+                                </div> 
+                                <div clas="rig" style="display:table-cell; text-align:right;">
+                                    <t t-esc="tax_grouped['tax_line_money_value']"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    <t t-set="total_imp" t-value="total_imp + tax_grouped['tax_line_money_value']"/>
+                                </div>
+                            </div>
+                        </t> 
+                         <div class="receipt-row" style="display:table;border-top:1px dashed #ccc;">
+                            <div clas="lef" style="display:table-cell;">
+                             
+                            </div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;">
+                                <span t-esc="total_imp"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </div>
+                        </div>
+                    </div>  
+
+                    <hr style="border:1px solid #777;"></hr>
+                    <div class="pos-ticket-body">
+                        <div><b>DIARIO DE VENTA</b></div>
+                        <t t-set="total_diarios" t-value="0"/>
+                        <t t-set="total_diarios_incl" t-value="0"/>
+                        <t t-foreach="o.get_totals_by_sale_journal('einv_non_separeted')" t-as="journal_grouped">
+                            <div class="receipt-row"  style="display:table;">
+                                <div clas="lef"  style="display:table-cell;">
+                                    <t t-esc="journal_grouped['journal_name']"/> 
+                                </div> 
+                                <div clas="rig" style="display:table-cell; text-align:right;">
+                                    
+                                    <t t-esc="journal_grouped['sum_subtotal']"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </div>
+                            </div>
+                            <t t-set="total_diarios" t-value="total_diarios + journal_grouped['sum_subtotal']"/>
+                            <t t-set="total_diarios_incl" t-value="total_diarios_incl + journal_grouped['sum_subtotal_incl']"/>
+                        </t>
+                        <div class="receipt-row" style="display:table;border-top:1px dashed #ccc;" >
+                            <div clas="lef" style="display:table-cell;">
+                                
+                            </div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;">
+                                <div><span t-esc="total_diarios"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                                <!--<div><small><span t-esc="total_diarios_incl"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></small></div>-->
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="border:1px solid #777;"></hr>
+                    <div class="pos-ticket-body">
+                        <div><b>DEPARTAMENTOS</b></div>
+                        <t t-set="total_dep" t-value="0"/>
+                        <t t-foreach="o.get_totals_by_product_category('einv_non_separeted')" t-as="cat_grouped">
+                            <div class="receipt-row"  style="display:table;">
+                                <div clas="lef"  style="display:table-cell;">
+                                    <t t-esc="cat_grouped['product_category']"/> 
+                                </div> 
+                                <div clas="rig" style="display:table-cell; text-align:right;">
+                                    
+                                    <t t-esc="cat_grouped['total_amount_without_tax']"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </div>
+                            </div>
+                            <t t-set="total_dep" t-value="total_dep + cat_grouped['total_amount_without_tax']"/>
+                        </t>
+                        <div class="receipt-row" style="display:table;;border-top:1px dashed #ccc;">
+                            <div clas="lef" style="display:table-cell;">
+                                
+                            </div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;">
+                                <span t-esc="total_dep"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="border:1px solid #777;"></hr>
+                    <div class="pos-ticket-body">
+                    <div><b>PAGOS</b></div>
+                        <t t-set="total" t-value="0"/>
+                        <t t-foreach="o.get_payments_by_method('einv_non_separeted')" t-as="payment">
+                            <div class="receipt-row" style="display:table;">
+                                <div clas="lef"  style="display:table-cell;">
+                                    <t t-esc="payment.get('name')"/> 
+                                </div> 
+                                <div clas="rig" style="display:table-cell; text-align:right;">                                    
+                                    <span t-esc="payment.get('sum')"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>                                    
+                                </div>
+                            </div>
+                            <t t-set="total" t-value="total + payment.get('sum')"/>
+                        </t>                        
+                    </div>
+
+                    <hr style="border:1px solid #777;"></hr>
+                    <div class="pos-ticket-body">
+                        <div class="receipt-row" style="margin-top:15px;">
+                            <div clas="lef" style="display:table-cell;">
+                                <b>TOTAL VENTA POS CON IMPUESTOS</b>
+                            </div> 
+                            <div clas="rig" style="display:table-cell; text-align:right;">
+                                <span t-esc="total"  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="pos-ticket-body">
+                        <div class="receipt-row" style="margin-top:15px;">
+                            <p class="custom-p-text">
+                                Documento para dar cumplimiento al art 14 # 2 de la resolución DIAN 000055 del 14 de julio del 2016.
+                            </p>
+                        </div>
+                    </div>
+                </div>                    	
+            </t>
+        </template>
+
+        <template id="front_sales_report_pdf_template">
+		    <t t-call="web.html_container">
+                <div class="header">
+                </div>
+		        <t t-foreach="docs" t-as="o">
+		            <t t-call="edocs_print_format.pos_z_report_pdf" />
+		        </t>
+                <div class="footer">
+                </div>
+		    </t>
+		</template>
+
+</odoo>

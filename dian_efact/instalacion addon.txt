@@ -1,0 +1,17 @@
+- . Diarios
+- . Iniciar odoo modo desarrollo
+- . Traducción
+- . Secuencias
+- . Tarea Automatica
+- . Permisos edocs
+- . Descargar addon
+    cd /opt/odoo/custom-addons/
+    git clone https://github.com/apuestaya/sfact_addon.git
+    chmod -R 777 sfact_addon
+    sudo /etc/init.d/odoo restart
+
+- . Actualizar lista de aplicaciones
+- . Aplicaciones > buscar por "sunat"
+- . Instalar addon
+- . Prueba Sandbox
+- . Producción

@@ -1,0 +1,32 @@
+.pos-ticket-body
+{
+ font-size: 12px;
+ margin-top:15px;
+ width: 100%;
+ display: table;
+}
+.pos-ticket-body .receipt-row
+{
+    
+    width: 100%;
+    display: table-row;
+}
+.pos-ticket-body .receipt-row .lef
+{
+    display: table-cell;
+}
+.pos-ticket-body .receipt-row .rig
+{
+    display: table-cell;
+    text-align: right;
+}
+.pos-ticket-header
+{
+    font-size: 12px; 
+    display: table;
+    padding-right: 10px;
+}
+.pos-ticket-header .pos-header-t
+{
+    display: table-cell;
+}

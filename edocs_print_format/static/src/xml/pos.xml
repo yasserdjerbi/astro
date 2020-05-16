@@ -1,0 +1,230 @@
+<templates>
+<t t-extend="PosTicket">
+    <t t-jquery=".pos-sale-ticket" t-operation="replace">
+    
+       <div class="pos-sale-ticket">
+            
+            <div class="pos-ticket-header">
+                <div class="pos-center-align" style="height: 53px;margin-top: -37px;">
+                    <img t-att-src="widget.pos.company_logo_base64" />
+                </div>
+                <div class="company-details" style="margin-top:35px">
+                
+                <div class="company-details-padded1">
+                <div class="pos-center-align pos-order-reference">
+                    <b  class="participant_name"><t t-esc="widget.pos.company.name"/></b>
+                 </div>
+                   
+                    <div class="receipt-vat pos-center-align" t-if="widget.pos.company.vat">
+                        NIT: <t t-esc="widget.pos.company.vat"/>   <br />
+                    </div>                 
+                    <div class="receipt-phone pos-center-align">
+                        Phone: <t t-esc="widget.pos.company.phone || ''"/><br />
+                    </div>
+                    <div class="receipt-phone pos-center-align">
+                        Dirección: <t t-esc="widget.pos.company.street || ''"/><br />
+                    </div>
+                    <div class="receipt-phone pos-center-align">
+                        Ciudad: <t t-esc="widget.pos.company.city || ''"/><br />
+                    </div>
+                    </div>
+                </div>                   
+            </div> 
+            <div class="pos-center-align pos-order-reference">
+                    <t t-esc="order.name"/>
+            </div>
+            <div class="pos-center-align">
+                <t t-esc="order.formatted_validation_date"/>
+            </div>  
+            <div class="pos-center-align invoice-details enumber" t-if="enumber" >
+                    <div class="invoice-journal"><t t-esc="ejournal_name"/></div>
+                    <div class="invoice-number"><t t-esc="enumber"/></div>                   
+                </div>   
+             <div class="company-details">
+                <b >Cliente:</b>
+                <b class="participant_name"><t t-esc="order.get_client().name"  /></b>
+               <div class="company-details-padded">
+                <div class="receipt-vat" t-if="order.get_client().vat">
+                    <t t-esc="'C.C: '" t-if="order.get_client().dian_tipo_documento == '13'"/>
+                    <t t-esc="'NIT: '" t-if="order.get_client().dian_tipo_documento == '31'"/>
+                    <t t-esc="'Registro civil: '" t-if="order.get_client().dian_tipo_documento == '11'"/>
+                    <t t-esc="'Pasaporte: '" t-if="order.get_client().dian_tipo_documento == '41'"/>
+                    <t t-esc="'T. Identidad: '" t-if="order.get_client().dian_tipo_documento == '12'"/>
+                    <t t-esc="'T. Extranjería: '" t-if="order.get_client().dian_tipo_documento == '21'"/>
+                    <t t-esc="'C. Extranjería: '" t-if="order.get_client().dian_tipo_documento == '22'"/>
+                    <t t-esc="'Documento de identificación extranjero: '" t-if="order.get_client().dian_tipo_documento == '42'"/>
+                    <t t-esc="'NIT otro país: '" t-if="order.get_client().dian_tipo_documento == '50'"/>
+                    : <t t-esc="order.get_client().vat"/>   <br />
+                </div>                
+                <div class="receipt-phone" t-if="order.get_client().phone">
+                    Phone: <t t-esc="order.get_client().phone || ''"/><br />
+                </div>
+                <div class="receipt-phone" t-if="order.get_client().street">
+                    Dirección: <t t-esc="order.get_client().street || ''"/><br />
+                </div>
+                <div class="receipt-phone"  t-if="order.get_client().city">
+                    Ciudad: <t t-esc="order.get_client().city || ''"/><br />
+                </div>
+                </div>
+            </div>                   
+            <br />
+            <t t-if="receipt.header">
+                <div style='text-align:center'>
+                    <t t-esc="receipt.header" />
+                </div>
+                <br />
+            </t>
+             
+            <table class='receipt-orderlines'>
+                <colgroup>
+                    <col width='10%' />
+                    <col width='30%' />
+                    <col width='11%' />
+                    <col width='25%' />
+                    <col width='29%' />
+                </colgroup>
+                <tr class="pos-table-header">
+                    <th>Ref</th>
+                    <th style="text-align:center;">Descripción</th>
+                    <th>Cant</th>
+                    <th  style="text-align:center;">Precio</th>
+                    <th style="text-align:right;">Vr Total</th>
+                </tr>
+                <tr t-foreach="orderlines" t-as="orderline">
+                    <td>
+                        <t t-if="orderline.get_product().default_code" t-esc="orderline.get_product().default_code"/>
+                        <t t-if="orderline.get_product().default_code==false" t-esc="orderline.get_product().id"/>
+                    </td>
+                    <td>
+                        <t t-esc="orderline.get_product().display_name"/>
+                         <t t-if="orderline.get_discount() > 0">
+                            <div class="pos-disc-font">
+                                With a <t t-esc="orderline.get_discount()"/>% discount
+                            </div>
+                        </t>
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-esc="orderline.quantity"/>
+                    </td>
+                    <td>
+                        <t t-esc="widget.format_currency_report(orderline.price, 0)"/>
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency_report(orderline.get_display_price(), 0)"/>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table class='receipt-total'>
+                <tr class="receip-total-row">
+                    <td>Subtotal:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency_report(order.get_total_without_tax())"/>
+                    </td>
+                </tr>
+                <t t-foreach="order.get_tax_details()" t-as="taxdetail">
+                    <tr class="receip-total-row">
+                        <td><t t-esc="taxdetail.name" /></td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency_report(taxdetail.amount)" />
+                        </td>
+                    </tr>
+                </t>
+                <tr class="receip-total-row">
+                    <t t-if="order.get_total_discount() > 0">
+                        <td>Discount:</td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency_report(order.get_total_discount())"/>
+                        </td>
+                    </t>
+                </tr>
+                <tr class="emph receip-total-row">
+                    <td>Total:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency_report(order.get_total_with_tax())"/>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table class='receipt-paymentlines'>
+                <t t-foreach="paymentlines" t-as="line">
+                  <tr class="receip-total-row">
+                      <td>
+                          <t t-esc="line.name"/>
+                      </td>
+                      <td class="pos-right-align">
+                          <t t-esc="widget.format_currency_report(line.get_amount())"/>
+                      </td>
+                  </tr>
+                </t>
+            </table>
+            <br />
+            <table class='receipt-change'>
+                <tr class="receip-total-row"><td>Change:</td><td class="pos-right-align">
+                    <t t-esc="widget.format_currency_report(order.get_change())"/>
+                    </td></tr>
+            </table>
+            <br/>
+            <table class="pos-group-taxes">
+                    <colgroup>
+                        <col width='14%' />
+                        <col width='9%' />
+                        <col width='22%' />
+                        <col width='30%' />
+                        <col width='27%' />
+                    </colgroup>
+                   <tr class="pos-table-header">
+                        <th colspan="2">Tipo</th>
+                        <th>Vr Compra</th>
+                        <th>Base/Imp</th>
+                        <th style="text-align:right;">Impuesto</th>
+                   </tr>
+                   <tr t-foreach="groupTaxes" t-as="groupTax">
+                    <td><t t-esc="groupTax.name"/></td>
+                    <!--<td><t t-esc="groupTax.type"/></td>-->
+                    <td><t t-esc="groupTax.amount"/></td>
+                    <td><t t-esc="groupTax.price_subtotal_incl"/></td>
+                    <td><t t-esc="groupTax.price_subtotal"/></td>
+                    <td><t t-esc="groupTax.tax_amount_over_price"/></td>
+                   </tr>
+             </table>
+             <br/>
+             <div class="company-details">
+               
+                <b>Cajero:</b>
+                <b  class="participant_name"><t t-esc="widget.pos.get_cashier().name"/></b>
+               <div class="company-details-padded-footer">
+                    <div class="receipt-vat">
+                        <t t-esc="widget.pos.get_cashier().login"/>   <br />
+                    </div>  
+                </div>
+            </div> 
+            <div class="pos-center-align invoice-details" t-if="ecufe">
+                    <div class="invoice-cufe"><t t-esc="widget.pos.last_receipt_render_env.ecufe"/> </div>                    
+                </div> 
+            <div class="pos-center-align" t-if="widget.pos.company.website"><br/>
+                    <div><t t-esc="widget.pos.company.website"/></div>
+                    <div>Núm. Físcal <t t-esc="widget.pos.company.vat"/></div>                     
+            </div>
+	  
+            <div class="ticket_qr_image_pos productos-contenedor custom-pos-sale-ticket pos-center-align" t-if="widget.pos.last_receipt_render_env.qr_image">
+                <div style='text-align:center'>
+                    <img  t-att-src="widget.pos.last_receipt_render_env.qr_image" style="max-width: 134px;"/>
+                </div>
+            </div>
+
+            <div class="pos-center-align invoice-details" >
+                    <span>Número de resolución 18762001995198</span>             
+                </div> 
+
+            <t t-if="receipt.footer">
+                
+                <br />
+                <div style='text-align:center'>
+                    <t t-esc="receipt.footer" />
+                </div>
+            </t>
+        </div>
+    </t>
+</t>
+</templates>

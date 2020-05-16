@@ -1,0 +1,2 @@
+"id","name","perm_create","perm_write","perm_unlink","perm_read","group_id/id","model_id/id"
+"__export__.ir_model_access_631_0c3db6fb","access_pos_mail_mail","True","True","False","True","","edocs_print_format.model_pos_mail_mail"

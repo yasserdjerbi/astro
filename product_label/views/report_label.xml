@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <template id="report_product_label_">
+       <t t-call="web.html_container">
+             <div class="page">
+               <style>
+                    .row-report
+                     {
+                         text-align: center;
+                         width: 119%;
+                         padding-top:2px;
+                         padding-bottom:2px;
+                     }
+                     
+                     .row-report r-manufacturers
+                     {
+                         width:119%;
+                     }
+                   .r-manufacturers
+                   {
+                      width:119%;
+                   }
+                     .report-block-manufacturer
+                   {
+                   }
+                   .page
+                   {
+                       width: 52mm;
+                       height: 25mm;
+                   }
+                   .qr-image
+                   {
+                      width: 70px;
+                      height: 40px;
+                   }
+                   .bar-code
+                   {
+                       width: 45mm;
+                       height: 15mm;
+                   }
+                   .report-block-manufacturer div
+                   {
+                    border:1px solid black;
+                   }
+                   
+                   .r-manufacturers
+                   {
+                    width:119%;
+                   }
+                   .r-manufacturers table
+                   {
+                    width: 100%;
+                    border: 1px solid black;
+                    border-radius: 6px;
+                   }
+                   .r-manufacturers td
+                   {
+                    border:1px solid black;
+                    text-align: center;
+                   }
+                   .barname
+                   {
+                        font-family: sans-serif;
+                        font-weight: bold;
+                        font-style: oblique;
+                        font-size:13px!important;
+                   }
+                   .logo
+                   {
+                       width:100%;
+                       height:30px;
+                       background-image:url('/product_label/static/src/img/logo.png'); 
+                       background-size:100%;
+                   }
+                   .table-headers td
+                   {
+                        font-family: sans-serif;
+                        font-weight: bold;
+                        font-style: oblique;
+                        font-size:14px!important;
+                   }
+                   .table-body td
+                   {
+                        font-family: sans-serif;
+                        font-style: oblique;
+                        font-size:14px!important;
+                   }
+                   .product_name
+                   {
+                        font-family: sans-serif;
+                        font-style: oblique;
+                        font-size:14px!important;
+                        overflow:hidden;
+                   }
+                  </style>
+                
+                <!-- <div class="row-report">
+                    <img class="logo" t-att-src="'/product_label/static/src/img/logo.png'" />
+                 </div>-->
+            
+                 
+
+                 <div class="row-report product_name"  style="margin-rigth:2px;width: 110%;">
+                     <t class="product_name" t-esc="product_name"/>
+                 </div>
+                 <div class="row-report">
+                     <t class="barname" t-esc="currency_symbol"/> <t class="barname" t-esc="product_list_price"/> 
+                 </div>   
+                 <!--<div class="row-report">
+                    <img t-att-src="qr_code" class="qr-image"/>
+                 </div>-->
+                 <div class="row-report">
+                    <div style="width:100%;">
+                    <div style="display:block;width:100%;text-align:center;"><img t-att-src="bar_code" class="bar-code" style="text-align:center;display:inline-block; width: auto; height:44px;"/></div>
+                        <div style="display:block;width:100%;margin-top:1px;text-align:center;"><small><span t-esc="product_bar_code"/></small></div>
+                        
+                    </div>
+                 </div>
+                 
+            
+             </div>
+        </t>
+    </template>
+
+</odoo>

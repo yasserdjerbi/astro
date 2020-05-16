@@ -1,0 +1,57 @@
+sudo apt update
+
+sudo apt install nginx
+sudo ufw allow 'Nginx HTTP'
+systemctl restart nginx
+systemctl status nginx
+
+sudo apt install openssl
+
+cd /etc/ssl/dian_certs/
+git clone https://github.com/apuestaya/ssl_ionos.git
+cd ssl_ionos
+
+# Opcionales
+mv _.myvservimul.com_private_key.key /etc/ssl/dian_certs/
+mv myvservimul.com_ssl_certificate.cer /etc/ssl/dian_certs/
+cd ../
+
+nano /etc/nginx/sites-available/odoo1.com
+
+
+upstream odoo {
+    server 127.0.0.1:2019;
+}
+
+server {
+
+    listen odoo1.com:80 default_server;
+    server_name odoo1.com, www.odoo1.com;
+    access_log  /var/log/nginx/odoo.access.log;
+    error_log   /var/log/nginx/odoo.error.log;
+    listen 443 ssl;
+    proxy_buffers 16 64k;
+    proxy_buffer_size 128k;
+
+    location / {
+        proxy_pass  http://odoo;
+        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+        proxy_redirect off;
+
+        proxy_set_header    Host            $host;
+        proxy_set_header    X-Real-IP       $remote_addr;
+        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-Proto https;
+    }
+
+    location ~* /web/static/ {
+        proxy_cache_valid 200 60m;
+        proxy_buffering on;
+        expires 864000;
+        proxy_pass http://odoo;
+    }
+}
+
+ln -s /etc/nginx/sites-enabled/odoo1.com /etc/nginx/sites-available/
+systemctl restart nginx
+reboot

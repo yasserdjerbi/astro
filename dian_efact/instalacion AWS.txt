@@ -1,0 +1,112 @@
+- . Diarios
+- . Iniciar odoo modo desarrollo
+- . Traducción
+- . Secuencias
+- . Descargar addon
+    cd /opt/odoo/custom-addons/
+    git clone https://github.com/apuestaya/sfact_addon.git
+    chmod -R 777 sfact_addon
+    sudo /etc/init.d/odoo restart
+
+- . Actualizar lista de aplicaciones
+- . Aplicaciones > buscar por "sunat"
+- . Instalar addon
+- . Prueba Sandbox
+- . Producción
+
+
+# Web Servers
+sudo apt-get install nginx
+sudo apt-get install apache2
+sudo apt-get install php7.2
+
+#install addon packages required (php and python)
+sudo apt-get install tesseract-ocr tesseract-ocr-eng phantomjs
+sudo apt-get install -y xmlsec1
+
+# if not exist
+sudo mkdir -p /home/cds/.local/lib/python3.6/site-packages
+
+sudo cp /home/cds/.local/lib/python3.6/site-packages/xmlsec* /usr/local/lib/python3.6/dist-packages
+sudo apt-get install libxml2-dev libxmlsec1-dev libxmlsec1-openssl
+sudo pip3 install xmlsec
+sudo pip3 install pytesseract
+sudo pip3 install  qrcode
+sudo apt-get install php7.2-zip
+sudo apt-get install php7.2-curl
+sudo pip3 install dianservice==1.0.13
+sudo pip3 install json2xml
+sudo pip3 install num2words
+sudo pip3 install bs4
+sudo pip3 install pg-xmlsig
+sudo pip3 install pg-xades
+
+
+# listen different ports
+sudo nano /etc/apache2/ports.conf
+
+# accept listen odoo without port
+sudo nano /etc/nginx/sites-enabled/default
+location / {
+        proxy_pass  http://facturador-dian.com:8961;
+        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+        proxy_redirect off;
+
+        proxy_set_header    Host            $host;
+        proxy_set_header    X-Real-IP       $remote_addr;
+        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-Proto https;
+    }
+
+# Fix upload too large 
+sudo nano /etc/nginx/nginx.conf
+in http{}
+client_max_body_size 12m;
+client_body_buffer_size 16k;
+
+# Adjust AWS Security groups
+
+# restart web servers
+sudo systemctl restart nginx 
+sudo service apache2 restart
+
+#check instance groups if running with AWS and does not load
+
+#upload addon files
+sudo cp -r /www/dian_efact_addon /odooCO/custom/addons
+sudo cp -r /www/dianservice-1.0.11-py3.6.egg /usr/local/lib/python3.6/dist-packages/
+sudo cp -r /www/dian_efact /var/www/html
+
+sudo /etc/init.d/odoo_colombia-server restart
+sudo /etc/init.d/postgresql restart
+
+#odoo logs
+sudo nano /var/log/odooCo/odooCo-server.log
+sudo rm /var/log/odooCo/odooCo-server.log
+
+
+# some times this library dos not work on default installation
+sudo apt-get install libxrender1
+wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+tar -xvf wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+cd wkhtmltox/bin/
+sudo mv wkhtmltopdf /usr/bin/wkhtmltopdf
+sudo mv wkhtmltoimage /usr/bin/wkhtmltoimage
+sudo chmod a+x /usr/bin/wkhtmltopdf
+sudo chmod a+x /usr/bin/wkhtmltoimage
+
+
+################### CERTIFICATE ######################
+
+#to convert a PFX file to a PEM file that contains both the certificate and private key, the following command needs to be used:
+openssl pkcs12 -in filename.pfx -out cert.pem -nodes
+#We can extract the private key form a PFX to a PEM file with this command:
+openssl pkcs12 -in 1703509693001.pfx -nocerts -out rsakey.pem
+#Exporting the certificate only:
+openssl pkcs12 -in 1703509693001.pfx -clcerts -nokeys -out rsacert.pem
+#Removing the password from the extracted private key:
+openssl rsa -in key.pem -out server.key
+
+48004836
+20100134455
+20100098041
